@@ -1,173 +1,175 @@
-# An MCP-based Chatbot
+<div align="center">
 
-(English | [中文](README_zh.md) | [日本語](README_ja.md))
+# PhoneBed XiaoZhi
 
-## Introduction
+### 面向端侧 AI 的 ESP32 智能语音交互终端
 
-👉 [Human: Give AI a camera vs AI: Instantly finds out the owner hasn't washed hair for three days【bilibili】](https://www.bilibili.com/video/BV1bpjgzKEhd/)
+离线感知 · 实时音频 · 边云协同 · MCP 设备控制
 
-👉 [Handcraft your AI girlfriend, beginner's guide【bilibili】](https://www.bilibili.com/video/BV1XnmFYLEJN/)
+[![ESP-IDF](https://img.shields.io/badge/ESP--IDF-5.4%2B-E7352C?logo=espressif&logoColor=white)](https://github.com/espressif/esp-idf)
+[![C++](https://img.shields.io/badge/Language-C%2B%2B-00599C?logo=cplusplus&logoColor=white)](https://isocpp.org/)
+[![Platform](https://img.shields.io/badge/Platform-ESP32-111111?logo=espressif&logoColor=white)](https://www.espressif.com/)
+[![License](https://img.shields.io/badge/License-MIT-2EA44F)](LICENSE)
 
-As a voice interaction entry, the XiaoZhi AI chatbot leverages the AI capabilities of large models like Qwen / DeepSeek, and achieves multi-terminal control via the MCP protocol.
-
-<img src="docs/mcp-based-graph.jpg" alt="Control everything via MCP" width="320">
-
-## Version Notes
-
-The current v2 version is incompatible with the v1 partition table, so it is not possible to upgrade from v1 to v2 via OTA. For partition table details, see [partitions/v2/README.md](partitions/v2/README.md).
-
-All hardware running v1 can be upgraded to v2 by manually flashing the firmware.
-
-The stable version of v1 is 1.9.2. You can switch to v1 by running `git checkout v1`. The v1 branch will be maintained until February 2026.
-
-### Features Implemented
-
-- Wi-Fi / ML307 Cat.1 4G
-- Offline voice wake-up [ESP-SR](https://github.com/espressif/esp-sr)
-- Supports two communication protocols ([Websocket](docs/websocket.md) or MQTT+UDP)
-- Uses OPUS audio codec
-- Voice interaction based on streaming ASR + LLM + TTS architecture
-- Speaker recognition, identifies the current speaker [3D Speaker](https://github.com/modelscope/3D-Speaker)
-- OLED / LCD display, supports emoji display
-- Battery display and power management
-- Multi-language support (Chinese, English, Japanese)
-- Supports ESP32-C3, ESP32-S3, ESP32-P4 chip platforms
-- Device-side MCP for device control (Speaker, LED, Servo, GPIO, etc.)
-- Cloud-side MCP to extend large model capabilities (smart home control, PC desktop operation, knowledge search, email, etc.)
-- Customizable wake words, fonts, emojis, and chat backgrounds with online web-based editing ([Custom Assets Generator](https://github.com/78/xiaozhi-assets-generator))
-
-## Hardware
-
-### Breadboard DIY Practice
-
-See the Feishu document tutorial:
-
-👉 ["XiaoZhi AI Chatbot Encyclopedia"](https://ccnphfhqs21z.feishu.cn/wiki/F5krwD16viZoF0kKkvDcrZNYnhb?from=from_copylink)
-
-Breadboard demo:
-
-![Breadboard Demo](docs/v1/wiring2.jpg)
-
-### Supports 70+ Open Source Hardware (Partial List)
-
-- <a href="https://oshwhub.com/li-chuang-kai-fa-ban/li-chuang-shi-zhan-pai-esp32-s3-kai-fa-ban" target="_blank" title="LiChuang ESP32-S3 Development Board">LiChuang ESP32-S3 Development Board</a>
-- <a href="https://github.com/espressif/esp-box" target="_blank" title="Espressif ESP32-S3-BOX3">Espressif ESP32-S3-BOX3</a>
-- <a href="https://docs.m5stack.com/zh_CN/core/CoreS3" target="_blank" title="M5Stack CoreS3">M5Stack CoreS3</a>
-- <a href="https://docs.m5stack.com/en/atom/Atomic%20Echo%20Base" target="_blank" title="AtomS3R + Echo Base">M5Stack AtomS3R + Echo Base</a>
-- <a href="https://gf.bilibili.com/item/detail/1108782064" target="_blank" title="Magic Button 2.4">Magic Button 2.4</a>
-- <a href="https://www.waveshare.net/shop/ESP32-S3-Touch-AMOLED-1.8.htm" target="_blank" title="Waveshare ESP32-S3-Touch-AMOLED-1.8">Waveshare ESP32-S3-Touch-AMOLED-1.8</a>
-- <a href="https://github.com/Xinyuan-LilyGO/T-Circle-S3" target="_blank" title="LILYGO T-Circle-S3">LILYGO T-Circle-S3</a>
-- <a href="https://oshwhub.com/tenclass01/xmini_c3" target="_blank" title="XiaGe Mini C3">XiaGe Mini C3</a>
-- <a href="https://oshwhub.com/movecall/cuican-ai-pendant-lights-up-y" target="_blank" title="Movecall CuiCan ESP32S3">CuiCan AI Pendant</a>
-- <a href="https://github.com/WMnologo/xingzhi-ai" target="_blank" title="WMnologo-Xingzhi-1.54">WMnologo-Xingzhi-1.54TFT</a>
-- <a href="https://www.seeedstudio.com/SenseCAP-Watcher-W1-A-p-5979.html" target="_blank" title="SenseCAP Watcher">SenseCAP Watcher</a>
-- <a href="https://www.bilibili.com/video/BV1BHJtz6E2S/" target="_blank" title="ESP-HI Low Cost Robot Dog">ESP-HI Low Cost Robot Dog</a>
-
-<div style="display: flex; justify-content: space-between;">
-  <a href="docs/v1/lichuang-s3.jpg" target="_blank" title="LiChuang ESP32-S3 Development Board">
-    <img src="docs/v1/lichuang-s3.jpg" width="240" />
-  </a>
-  <a href="docs/v1/espbox3.jpg" target="_blank" title="Espressif ESP32-S3-BOX3">
-    <img src="docs/v1/espbox3.jpg" width="240" />
-  </a>
-  <a href="docs/v1/m5cores3.jpg" target="_blank" title="M5Stack CoreS3">
-    <img src="docs/v1/m5cores3.jpg" width="240" />
-  </a>
-  <a href="docs/v1/atoms3r.jpg" target="_blank" title="AtomS3R + Echo Base">
-    <img src="docs/v1/atoms3r.jpg" width="240" />
-  </a>
-  <a href="docs/v1/magiclick.jpg" target="_blank" title="Magic Button 2.4">
-    <img src="docs/v1/magiclick.jpg" width="240" />
-  </a>
-  <a href="docs/v1/waveshare.jpg" target="_blank" title="Waveshare ESP32-S3-Touch-AMOLED-1.8">
-    <img src="docs/v1/waveshare.jpg" width="240" />
-  </a>
-  <a href="docs/v1/lilygo-t-circle-s3.jpg" target="_blank" title="LILYGO T-Circle-S3">
-    <img src="docs/v1/lilygo-t-circle-s3.jpg" width="240" />
-  </a>
-  <a href="docs/v1/xmini-c3.jpg" target="_blank" title="XiaGe Mini C3">
-    <img src="docs/v1/xmini-c3.jpg" width="240" />
-  </a>
-  <a href="docs/v1/movecall-cuican-esp32s3.jpg" target="_blank" title="CuiCan">
-    <img src="docs/v1/movecall-cuican-esp32s3.jpg" width="240" />
-  </a>
-  <a href="docs/v1/wmnologo_xingzhi_1.54.jpg" target="_blank" title="WMnologo-Xingzhi-1.54">
-    <img src="docs/v1/wmnologo_xingzhi_1.54.jpg" width="240" />
-  </a>
-  <a href="docs/v1/sensecap_watcher.jpg" target="_blank" title="SenseCAP Watcher">
-    <img src="docs/v1/sensecap_watcher.jpg" width="240" />
-  </a>
-  <a href="docs/v1/esp-hi.jpg" target="_blank" title="ESP-HI Low Cost Robot Dog">
-    <img src="docs/v1/esp-hi.jpg" width="240" />
-  </a>
 </div>
 
-## Software
+## 项目概述
 
-### Firmware Flashing
+PhoneBed XiaoZhi 是运行在 ESP32 系列芯片上的嵌入式 AI 交互终端。项目以语音为入口，在资源受限的 MCU 上完成离线唤醒、音频前处理、实时编解码、会话状态管理与设备控制，并通过 WebSocket 或 MQTT + UDP 接入云端 ASR、LLM、TTS，形成完整的端云协同链路。
 
-For beginners, it is recommended to use the firmware that can be flashed without setting up a development environment.
+项目关注的不是简单调用大模型 API，而是如何把 AI 可靠地落到真实硬件：端侧负责低时延感知与确定性执行，云侧负责计算密集型语义推理；MCP（Model Context Protocol）把扬声器、屏幕、LED、GPIO、舵机和摄像头等能力抽象为大模型可发现、可调用的工具。
 
-The firmware connects to the official [xiaozhi.me](https://xiaozhi.me) server by default. Personal users can register an account to use the Qwen real-time model for free.
+> **项目定位：** 面向智能家居、陪伴设备、桌面终端与具身交互原型的端侧 AI 基础平台。
 
-👉 [Beginner's Firmware Flashing Guide](https://ccnphfhqs21z.feishu.cn/wiki/Zpz4wXBtdimBrLk25WdcXzxcnNS)
+## 技术亮点
 
-### Development Environment
+| 方向 | 实现 | 工程价值 |
+| --- | --- | --- |
+| 端侧智能感知 | ESP-SR / WakeNet 离线唤醒、AFE、自定义唤醒词 | 降低唤醒时延与持续上传音频带来的隐私风险 |
+| 实时语音链路 | I2S 采集、Opus 编解码、流式传输与播放队列 | 适配 MCU 算力、内存和带宽约束 |
+| 边云协同 | 端侧感知与执行，云侧 ASR + LLM + TTS | 平衡响应速度、模型能力与硬件成本 |
+| 设备智能体 | MCP Server、JSON-RPC 2.0、动态工具发现 | 将物理能力转化为 LLM 可调用工具 |
+| 嵌入式架构 | FreeRTOS 任务、事件组、消息队列、状态机 | 解耦音频、网络、交互与外设控制 |
+| 多硬件适配 | Board、Codec、Display、LED、Network 分层 | 支持多款 ESP32 芯片与开发板迁移 |
+| 产品化能力 | Wi-Fi / Cat.1 4G、OTA、资源分区、多语言 | 覆盖设备连接、升级和资源管理 |
 
-- Cursor or VSCode
-- Install ESP-IDF plugin, select SDK version 5.4 or above
-- Linux is better than Windows for faster compilation and fewer driver issues
-- This project uses Google C++ code style, please ensure compliance when submitting code
+## 系统架构
 
-### Developer Documentation
+```mermaid
+flowchart LR
+    subgraph Edge[ESP32 端侧 AI]
+        MIC[麦克风 / I2S] --> AFE[AFE 音频前处理]
+        AFE --> WAKE[ESP-SR 离线唤醒]
+        AFE --> OPUS[Opus 编码]
+        WAKE --> FSM[会话状态机]
+        OPUS --> NET[网络协议层]
+        FSM --> NET
+        MCP[MCP Server] --> HAL[设备抽象与驱动]
+        HAL --> IO[屏幕 / LED / GPIO / 舵机 / 摄像头]
+        PLAYER[Opus 解码与播放] --> SPK[扬声器 / I2S]
+    end
 
-- [Custom Board Guide](docs/custom-board.md) - Learn how to create custom boards for XiaoZhi AI
-- [MCP Protocol IoT Control Usage](docs/mcp-usage.md) - Learn how to control IoT devices via MCP protocol
-- [MCP Protocol Interaction Flow](docs/mcp-protocol.md) - Device-side MCP protocol implementation
-- [MQTT + UDP Hybrid Communication Protocol Document](docs/mqtt-udp.md)
-- [A detailed WebSocket communication protocol document](docs/websocket.md)
+    subgraph Cloud[云端智能服务]
+        ASR[流式 ASR] --> LLM[大语言模型]
+        LLM --> TTS[流式 TTS]
+        LLM --> MCPC[MCP Client]
+    end
 
-## Large Model Configuration
+    NET <-->|WebSocket 或 MQTT + UDP| ASR
+    TTS -->|音频流| NET
+    NET --> PLAYER
+    MCPC <-->|JSON-RPC 2.0| MCP
+```
 
-If you already have a XiaoZhi AI chatbot device and have connected to the official server, you can log in to the [xiaozhi.me](https://xiaozhi.me) console for configuration.
+### 端云职责边界
 
-👉 [Backend Operation Video Tutorial (Old Interface)](https://www.bilibili.com/video/BV1jUCUY2EKM/)
+- **端侧：** 离线唤醒、音频前处理、编解码、交互状态机、UI 渲染、MCP 工具执行、外设控制与 OTA。
+- **云侧：** 流式语音识别、大模型推理、语音合成及云端工具扩展。
+- **协同层：** 结构化传输音频、会话事件与工具调用，解耦语义决策和物理执行。
 
-## Related Open Source Projects
+## 核心交互链路
 
-For server deployment on personal computers, refer to the following open-source projects:
+```text
+语音输入
+  → 端侧 AFE / 离线唤醒
+  → PCM 分帧与 Opus 压缩
+  → WebSocket 或 MQTT + UDP
+  → 云端 ASR → LLM → TTS
+  → 音频流下发与端侧播放
+  → LLM 按需通过 MCP 调用设备工具
+  → ESP32 执行硬件动作并返回结果
+```
 
-- [xinnan-tech/xiaozhi-esp32-server](https://github.com/xinnan-tech/xiaozhi-esp32-server) Python server
-- [joey-zhou/xiaozhi-esp32-server-java](https://github.com/joey-zhou/xiaozhi-esp32-server-java) Java server
-- [AnimeAIChat/xiaozhi-server-go](https://github.com/AnimeAIChat/xiaozhi-server-go) Golang server
-- [hackers365/xiaozhi-esp32-server-golang](https://github.com/hackers365/xiaozhi-esp32-server-golang) Golang server
+音频采集/播放与 Opus 编解码由独立任务处理，任务间通过队列传递压缩音频包。应用层状态机统一管理空闲、连接、聆听、说话等状态，并处理唤醒、语音打断、断线重连和升级事件。
 
-Other client projects using the XiaoZhi communication protocol:
+## 技术栈
 
-- [huangjunsen0406/py-xiaozhi](https://github.com/huangjunsen0406/py-xiaozhi) Python client
-- [TOM88812/xiaozhi-android-client](https://github.com/TOM88812/xiaozhi-android-client) Android client
-- [100askTeam/xiaozhi-linux](http://github.com/100askTeam/xiaozhi-linux) Linux client by 100ask
-- [78/xiaozhi-sf32](https://github.com/78/xiaozhi-sf32) Bluetooth chip firmware by Sichuan
-- [QuecPython/solution-xiaozhiAI](https://github.com/QuecPython/solution-xiaozhiAI) QuecPython firmware by Quectel
+| 层级 | 技术与组件 |
+| --- | --- |
+| 芯片平台 | ESP32、ESP32-C3/C5/C6/S3/P4 |
+| SDK / RTOS | ESP-IDF 5.4+、FreeRTOS、ESP Event、NVS、OTA |
+| 开发语言 | C++、C、CMake、Python |
+| 端侧 AI | ESP-SR、WakeNet、AFE、自定义唤醒词模型 |
+| 音频系统 | I2S、ESP Audio Codec、Opus、重采样、AEC/NS |
+| 网络连接 | Wi-Fi、ML307 Cat.1 4G、WebSocket、MQTT、UDP、TLS |
+| Agent 协议 | MCP、JSON-RPC 2.0、Tool Schema、工具调用回传 |
+| 图形交互 | LVGL 9、OLED/LCD/AMOLED、Emoji/GIF/JPEG、触摸 |
+| 工程体系 | Component Manager、Kconfig、GitHub Actions、资源打包 |
 
-Custom Assets Tools:
+## 代码导览
 
-- [78/xiaozhi-assets-generator](https://github.com/78/xiaozhi-assets-generator) Custom Assets Generator (Wake words, fonts, emojis, backgrounds)
+| 路径 | 作用 | 关注点 |
+| --- | --- | --- |
+| [`main/application.cc`](main/application.cc) | 应用主流程与事件调度 | 会话生命周期、唤醒、打断 |
+| [`main/device_state_machine.cc`](main/device_state_machine.cc) | 设备状态机 | 状态转换与模块协同 |
+| [`main/audio/`](main/audio/) | 音频服务与唤醒 | 实时任务、Opus、AFE、WakeNet |
+| [`main/protocols/`](main/protocols/) | 通信协议抽象 | WebSocket 与 MQTT + UDP |
+| [`main/mcp_server.cc`](main/mcp_server.cc) | 设备侧 MCP Server | 工具注册、发现、校验和调用 |
+| [`main/boards/`](main/boards/) | 多开发板适配层 | 引脚、Codec、屏幕、按键、供电 |
+| [`main/display/`](main/display/) | 图形与表情显示 | LVGL 渲染及图像资源 |
+| [`main/ota.cc`](main/ota.cc) | 固件升级 | 下载、校验和升级流程 |
 
-## About the Project
+## MCP：让大模型操作真实设备
 
-This is an open-source ESP32 project, released under the MIT license, allowing anyone to use it for free, including for commercial purposes.
+项目在 ESP32 内实现 MCP Server。云端建立连接后依次使用 `initialize` 协商能力、`tools/list` 获取工具及输入 Schema，再通过 `tools/call` 调用具体硬件能力。
 
-We hope this project helps everyone understand AI hardware development and apply rapidly evolving large language models to real hardware devices.
+典型工具包括读取设备状态、调节扬声器音量，以及由不同硬件扩展的 LED、GPIO、舵机和摄像头控制。LLM 只负责选择工具并生成参数，端侧负责参数边界检查和确定性执行。详见 [MCP 交互流程](docs/mcp-protocol.md) 与 [MCP 设备控制](docs/mcp-usage.md)。
 
-If you have any ideas or suggestions, please feel free to raise Issues or join our [Discord](https://discord.gg/C759fGMBcZ) or QQ group: 994694848
+## 快速构建
 
-## Star History
+### 环境要求
 
-<a href="https://star-history.com/#78/xiaozhi-esp32&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=78/xiaozhi-esp32&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=78/xiaozhi-esp32&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=78/xiaozhi-esp32&type=Date" />
- </picture>
-</a>
+- ESP-IDF 5.4 或更高版本
+- Git、CMake、Ninja 与 Python
+- 受支持的 ESP32 开发板及对应音频外设
+
+### 编译与烧录
+
+```bash
+git clone https://github.com/qll070226-a11y/phonebed-xiaozhi.git
+cd phonebed-xiaozhi
+
+# 以 ESP32-S3 为例
+idf.py set-target esp32s3
+idf.py menuconfig
+idf.py build
+idf.py -p <PORT> flash monitor
+```
+
+在 `menuconfig` 中选择实际板型、唤醒词与功能。首次启动后，设备按所选板型进入网络配置流程。
+
+> v2 使用新的分区布局，不能从 v1 直接 OTA 升级；已有 v1 设备需手动烧录。详见 [分区说明](partitions/v2/README.md)。
+
+## 面向导师的演示路径
+
+1. **离线唤醒：** 验证无云端推理参与时，端侧仍能识别唤醒词；
+2. **流式对话：** 展示说话、识别、生成、播放及语音打断的完整链路；
+3. **设备控制：** 用自然语言触发 MCP 工具，控制音量、灯光或其他外设；
+4. **实时架构：** 结合串口日志说明状态机、音频队列与网络会话变化；
+5. **多板适配：** 对比不同 Board 配置，说明硬件抽象和迁移方式。
+
+## 可继续研究的方向
+
+- 轻量模型量化、剪枝与端侧推理性能评估；
+- 端到端时延、内存、功耗及网络抖动的系统测量；
+- 复杂声场下的回声消除、降噪与远场唤醒；
+- 基于 MCP 的多模态传感器接入与具身控制；
+- 弱网降级、本地缓存和隐私保护策略。
+
+## 文档索引
+
+- [自定义开发板](docs/custom-board.md)
+- [WebSocket 协议](docs/websocket.md)
+- [MQTT + UDP 协议](docs/mqtt-udp.md)
+- [MCP 交互流程](docs/mcp-protocol.md)
+- [音频模块说明](main/audio/README.md)
+
+## 开源说明
+
+本仓库基于开源项目 [78/xiaozhi-esp32](https://github.com/78/xiaozhi-esp32) 进行学习、整理与工程化展示，感谢原作者及社区贡献者。项目遵循 [MIT License](LICENSE)，使用或二次开发时请保留原始许可证和版权声明。
+
+---
+
+<div align="center">
+面向真实硬件构建可感知、可交互、可执行的端侧 AI 终端
+</div>
